@@ -1,0 +1,9 @@
+<script>
+	function showTalentopolySharer(event)
+	{
+	    if (event.command === "showSharer") {
+			safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("showTSharer", null);
+		}
+	}
+	safari.application.addEventListener("command", showTalentopolySharer, true);
+</script>
