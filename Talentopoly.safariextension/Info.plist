@@ -75,6 +75,8 @@
 			<string>All</string>
 		</dict>
 	</dict>
+	<key>Update Manifest URL</key>
+	<string>http://peelman.us/talentopoly/manifest.xml</string>
 	<key>Website</key>
 	<string>http://talentopoly.com</string>
 </dict>
