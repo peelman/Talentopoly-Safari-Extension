@@ -1,0 +1,115 @@
+@charset "UTF-8";
+
+form h1 {
+	font-size: 20px;
+	font-weight: bold;
+	margin: 33px 0 17px 0;
+}
+
+form .border {
+	height: 5px;
+	margin-bottom: 21px;
+	background: url('../images/global/border_bg_repeat.png') repeat-x scroll 0 0 transparent;
+}
+
+form h2 {
+	font-size: 17px;
+	font-weight: bold;
+	color: #85bb1d;
+	margin-bottom: 23px;
+}
+
+form .field_group {
+	padding: 19px;
+	margin-bottom: 21px;
+	background-color: #f0eee8;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+form h3 {
+	font-size: 16px;
+	padding-bottom: 11px;
+	margin-bottom: 23px;
+	border-bottom: 4px solid #e7e5df;
+}
+
+form label {
+	margin: 3px 0;
+}
+
+form .text_field {
+	width: 300	px;
+	font-size: 16px;
+	padding: 4px;
+	border-top: 3px solid #e6e4df;
+	border-left: 3px solid #e6e4df;
+	border-right: 2px solid #e6e4df;
+	border-bottom: 2px solid #e6e4df;
+}
+
+form .fieldWithErrors input {
+    border-color: #ff6666;
+}
+
+form .radio_field, form .checkbox_field, form .select_field {
+	padding: 8px 10px;
+	margin: 8px 0;
+	background-color: #dfded9;
+}
+
+form .radio_field.first, form .checkbox_field.first {
+	margin-top: 0px;
+}
+
+form .radio_field.last, form .checkbox_field.last {
+	margin-bottom: 0px;
+}
+
+form .note {
+	color: #636161;
+	margin-top: 3px;
+}
+
+form .textarea_field {
+	width: 300px;
+	height: 80px;
+	font-size: 16px;
+	padding: 6px;
+	border-top: 3px solid #e6e4df;
+	border-left: 3px solid #e6e4df;
+	border-right: 2px solid #e6e4df;
+	border-bottom: 2px solid #e6e4df;
+}
+
+form .cancel {
+	text-align: right;
+	padding-top: 4px;
+}
+
+form .notice .header {
+	color: #302f2a;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 6px 7px;
+	background-color: #f0eee8;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+form .notice img {
+	vertical-align: middle;
+	margin-right: 4px;
+}
+
+form .notice .disclaimer {
+	color: #636161;
+	font-size: 11px;
+	margin-top: 6px;
+}
+
+form .appendix {
+	margin-top: 20px;
+}

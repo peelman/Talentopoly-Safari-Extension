@@ -31,6 +31,19 @@
 		</array>
 		<key>Global Page</key>
 		<string>global.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>popover.html</string>
+				<key>Height</key>
+				<real>800</real>
+				<key>Identifier</key>
+				<string>PopoverSharer</string>
+				<key>Width</key>
+				<real>600</real>
+			</dict>
+		</array>
 		<key>Toolbar Items</key>
 		<array>
 			<dict>
@@ -48,6 +61,20 @@
 				<string>Talentopoly</string>
 				<key>Tool Tip</key>
 				<string>Share on Talentopoly</string>
+			</dict>
+			<dict>
+				<key>Identifier</key>
+				<string>PopoverButton</string>
+				<key>Image</key>
+				<string>icon-48.png</string>
+				<key>Label</key>
+				<string>Popover</string>
+				<key>Palette Label</key>
+				<string>popover</string>
+				<key>Popover</key>
+				<string>PopoverSharer</string>
+				<key>Tool Tip</key>
+				<string>popover</string>
 			</dict>
 		</array>
 	</dict>

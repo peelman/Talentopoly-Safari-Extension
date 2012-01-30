@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+		<script src="javascripts/jquery.min.js" type="text/javascript"></script>
+		<script src="javascripts/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="javascripts/jquery.tagsinput.js" type="text/javascript"></script>
+		<script src="javascripts/jquery_ujs.js" type="text/javascript"></script>
+		<script src="javascripts/application.js" type="text/javascript"></script>
+		
+		<script type="text/javascript">
+		
+			safari.application.addEventListener("popover", kickstart, true);
+			
+			function kickstart(event) {
+				var api_key = safari.extension.secureSettings.api_key;
+				
+				if ( !validate_api_key(api_key) ) 
+				{
+					$('#new_dispatch').hide();
+					$('#api_form').show();
+				} else {
+					$('#api_key').val(api_key);
+					$('#post_link').val(safari.application.activeBrowserWindow.activeTab.url);
+					$('#post_title').val(safari.application.activeBrowserWindow.activeTab.title);
+					$('#new_dispatch').show();
+					$('#api_form').hide();
+				}
+			}
+			
+			function fetch_api_key(form) {
+				var params = form.serialize();
+				$.ajax({
+						url: 'https://talentopoly-staging.heroku.com/api/v1/api_key.json?' + params, 
+						success: function(data) { safari.extension.secureSettings.api_key = data; },
+						dataType: 'html',
+						async: false
+					});
+				kickstart();		
+			}
+			
+			function validate_api_key(key) {
+				if (!key) return false;
+				var retVal = false;
+				$.ajax({
+						url: 'https://talentopoly-staging.heroku.com/api/v1/valid.json?api_key=' + key, 
+						success: function(data) { 
+							if (data === "true") {
+								retVal = true;
+							} 
+						}, 
+						error: function(data) { alert("Could not validate your API Key!!"); },
+						dataType: 'html', 
+						async: false
+					});
+				return retVal;
+			}
+		</script>
+
+		<link href="stylesheets/text.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="stylesheets/form.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="stylesheets/dispatch.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="stylesheets/jquery.tagsinput.css" media="screen" rel="stylesheet" type="text/css" />
+		<link href="stylesheets/autocomplete.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body onload="return false;">
+		<div id="api_form" style="display:none;">
+			<form accept-charset="UTF-8" action="#" onsubmit="fetch_api_key($(this));return false;" class="new_post" data-remote="true" enctype="multipart/form-data" id="fetch_api_key" method="GET" class="form">
+				<div><label for="email">Email</label><input id="email" name="email" size="30" type="text"></div>
+				<div><label for="password">Password</label><input id="password" name="password" size="30" type="password"></div>
+				<span id="testing"></span>
+				<input class="loadable" id="post_button" name="commit" type="submit" value="Done">
+			</form>
+		</div>
+		<div id="new_dispatch">
+			<div id="new_dispatch_form">
+				<form accept-charset="UTF-8" action="https://talentopoly.com/api/v1/posts.json" class="new_post" data-remote="true" enctype="multipart/form-data" id="new_post" method="post" name="new_post">
+					<div style="margin:0;padding:0;display:inline">
+						<input name="utf8" type="hidden" value="✓">
+						<input id="api_key" name="api_key" type="hidden" value="">
+					</div>
+					<div id="post_errors"></div>
+					<div id="link">
+						<div>
+							<label for="post_link">Link</label>
+						</div>
+						<div>
+							<input id="post_link" name="link" size="30" type="text">
+						</div>
+					</div>
+					<div id="title">
+						<div>
+							<label for="post_title">Title</label> <img alt="Loading" id="fetching_title" src="images/loading.gif" style="display: none;" name="fetching_title">
+						</div>
+						<div>
+							<input id="post_title" name="title" size="30" type="text">
+						</div>
+					</div>
+					<div id="similar" style="display: none;">
+						<div>
+							<label>Similar posts (please check)</label> Has this already been posted?
+						</div>
+						<div id="similar_posts"></div>
+					</div>
+					<div id="description">
+						<div>
+							<label for="post_description">Description (optional)</label> You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">markdown syntax</a>
+						</div>
+						<div>
+							<textarea cols="40" id="post_description" name="description" rows="20"></textarea>
+						</div>
+					</div>
+					<div id="tags">
+						<div>
+							<label for="post_tag_list">Tags (optional)</label> Type enter or a comma to create a tag
+						</div>
+						<div>
+							<input id="post_tag_list" name="tag_list" size="30" type="text" value="">
+						</div>
+					</div>
+					<div id="base">
+						<div id="actions">
+							<input class="loadable" id="post_button" name="commit" type="submit" value="Done">
+						</div>
+						<div style="clear: both;"></div>
+						<div id="guidelines">
+							<a href="/static/site_guidelines" target="_blank">Read the Site Guidelines</a>
+						</div>
+						<div style="clear: both;"></div>
+					</div><input id="post_bookmarklet" name="post[bookmarklet]" type="hidden" value="true">
+				</form>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			//<![CDATA[
+		  $('#post_link').change(function() {
+		    $('#fetching_title').show();
+		    $.get("/posts/title", { link: $(this).val() }, 'script').always(function() {
+		      $('#fetching_title').hide();
+		    });
+		  });
+
+			$('#post_tag_list').tagsInput({
+				height: '70px',
+				width: '500px',
+				defaultText: '',
+				autocomplete_url: '/tags/autocomplete.json'
+			});          
+			//]]>
+		</script>
+	</body>
+</html>
