@@ -5,149 +5,406 @@
 		<script src="javascripts/jquery.min.js" type="text/javascript"></script>
 		<script src="javascripts/jquery-ui.min.js" type="text/javascript"></script>
 		<script src="javascripts/jquery.tagsinput.js" type="text/javascript"></script>
-		<script src="javascripts/jquery_ujs.js" type="text/javascript"></script>
-		<script src="javascripts/application.js" type="text/javascript"></script>
 		
 		<script type="text/javascript">
-		
-			safari.application.addEventListener("popover", kickstart, true);
+			var baseURL		= 'https://talentopoly-staging.heroku.com/';
+//			var baseURL = 'https://talentopoly.com/';
+
+			var apiURL		= baseURL + 'api/v1/';
+			var postsURL	= baseURL + 'posts/';
+
+			var verbPost	= 'posts.json';
+			var verbSimilar = 'posts/similar.json';
+			var verbKey		= 'api_key.json';
+			var verbValid	= 'valid.json';
+			
+			var popover = safari.extension.popovers[0];
+			var popoverHeight_login = 280;
+			var popoverHeight_post = 530;
+			var popoverHeight_error = 55;
+			var popoverHeight_similar = 115;
+			var popoverHeight_max = 725;
+			
+			var errorCount = 0;
+			var isSimilarDisplayed = false;
+			var isKeyValid = false;		
+
+			var spinnerOpts = {
+			  lines: 10, // The number of lines to draw
+			  length: 4, // The length of each line
+			  width: 3, // The line thickness
+			  radius: 5, // The radius of the inner circle
+			  color: '#034078', // #rgb or #rrggbb
+			  speed: 1, // Rounds per second
+			  trail: 40, // Afterglow percentage
+			  shadow: false, // Whether to render a shadow
+			  hwaccel: true // Whether to use hardware acceleration
+			};
+			var spinner = new Spinner(spinnerOpts);
+			
+			function resizePopover() {
+				var size = 0;
+				if (isKeyValid) {
+					size += popoverHeight_post;
+				} else {
+					size += popoverHeight_login;
+				}
+				
+				if (isSimilarDisplayed) {
+					size += popoverHeight_similar;
+				}
+				
+				if (errorCount > 0) {
+					size += (errorCount * popoverHeight_error);
+				}
+				
+				popover.height = Math.min(popoverHeight_max, size);
+			}
+			
+			function updateFields() {
+				var pageURL = safari.application.activeBrowserWindow.activeTab.url;
+				var pageTitle = safari.application.activeBrowserWindow.activeTab.title;
+
+				errorCount = 0;
+				$('#post_errors').html('').hide().removeClass('error success');
+				$('#post_link').val(pageURL);
+				$('#post_title').val(pageTitle);
+
+				validateLinkChange();
+				validateTitleChange();
+			}
 			
 			function kickstart(event) {
 				var api_key = safari.extension.secureSettings.api_key;
 				
-				if ( !validate_api_key(api_key) ) 
+				if ( !(isKeyValid = validateAPIKey(api_key)) ) 
 				{
-					$('#new_dispatch').hide();
-					$('#api_form').show();
+					showLoginContainer();
 				} else {
 					$('#api_key').val(api_key);
-					$('#post_link').val(safari.application.activeBrowserWindow.activeTab.url);
-					$('#post_title').val(safari.application.activeBrowserWindow.activeTab.title);
-					$('#new_dispatch').show();
-					$('#api_form').hide();
+					updateFields();
+					showPostForm();
 				}
+				resizePopover();
 			}
-			
-			function fetch_api_key(form) {
-				var params = form.serialize();
+
+			function getSimilarPosts(url, title) {
+				var params = '?link=' + encodeURIComponent(url);
+				params += '&title=' + encodeURIComponent(title);
+				params += '&api_key=' + safari.extension.secureSettings.api_key;
+				
+				$('#similar_posts').html('');
+				
 				$.ajax({
-						url: 'https://talentopoly-staging.heroku.com/api/v1/api_key.json?' + params, 
-						success: function(data) { safari.extension.secureSettings.api_key = data; },
-						dataType: 'html',
-						async: false
-					});
-				kickstart();		
+					type: 'GET',
+					url: apiURL + verbSimilar + params, 
+					success: function(data, status, jqxhr) {
+						if (data.length < 1) { $('#similar').hide(); isSimilarDisplayed = false; resizePopover(); return; }
+						$(data).each(function() {
+							$('#similar_posts').append('<a href="' + postsURL + this.id + '" class="similar_post" title="' + this.link + '" onclick="openLink(this); return false;">' + this.title + '</a>');
+						});
+
+						$('#similar').show();
+						isSimilarDisplayed = true;
+						resizePopover();
+					},
+					error: function(data, status, exception) { $('#similar').hide(); },
+					complete: function(data, status) { },
+					dataType: 'json'
+				});			
 			}
 			
-			function validate_api_key(key) {
+			function validateLinkChange(event) {
+				var postURL = $('#post_link').val();
+				if (postURL < 1 || postURL.length > 255) {
+					$('#post_errors').append('<li id="url_length_error">URL must be present and cannot be longer than 255 Characters</li>');
+					errorCount++;
+				} else {
+					
+					getSimilarPosts($('#post_link').val(), $('#post_title').val());
+					
+					if( $('#post_errors #url_length_error').length ){
+						$('#post_errors #url_length_error').remove();
+						errorCount--;
+					}
+				}
+				
+				validateErrorsBox();
+			}
+			
+			function validateTitleChange(event) {
+				var postTitle = $('#post_title').val();
+				
+				if (postTitle.length < 5 || postTitle.length > 255) {
+					$('#post_errors').append('<li id="title_length_error">Title must be between 5 and 255 Characters</li>');
+					errorCount++;
+				} else {
+					if ( $('#post_errors #title_length_error').length ) {
+						$('#post_errors #title_length_error').remove();
+						errorCount--;
+					}
+				}
+				
+				validateErrorsBox();
+			}
+			
+			function validateErrorsBox() {
+				if ( errorCount > 0 ) {
+					$('#post_errors').addClass('error').show(); 
+				} else {
+					$('#post_errors').removeClass('error').hide();
+				}
+				resizePopover();
+			}
+			
+			function submitPost(form) {
+				spinner.spin($('#post_actions')[0]);
+				$('#post_button').hide();
+				var formData = form.serialize();
+				$.ajax({
+						type: 'POST',
+						url: apiURL + verbPost, 
+						success: function(data) { openPost(data.id); clearPostForm(); $('#post_errors').addClass('success').html("Success!").show(); setTimeout("popover.hide()", 2000) },
+						error: function(data, status, exception) { $('#post_errors').addClass('error').html(data.responseText).show(); popover.height = popover.height + popoverHeight_errors; },
+						complete: function(data, status) { $('#post_button').show(); spinner.stop(); },
+						data: formData,
+						dataType: 'json'
+					});	
+			}
+			
+			function restore() {
+				$('#login_button').show();
+				$("#login_spinner").hide();
+			}
+			function fetchAPIKey(form) {
+				$("#login_spinner").show();
+				$('#login_button').hide();
+				var params = '?' + form.serialize();
+				$.ajax({
+						url: apiURL + verbKey + params, 
+						success: function(data) { safari.extension.secureSettings.api_key = data; kickstart(); },
+						error: function(data) { errorCount++; $('#login_errors').addClass('error').html(data.responseText).show(); resizePopover(); restore(); },
+						complete: function(data, status) { setTimeout('restore()',5000); },
+						dataType: 'text'
+					});		
+			}
+			
+			function validateAPIKey(key) {
 				if (!key) return false;
 				var retVal = false;
+				var params = '?api_key=' + key;
 				$.ajax({
-						url: 'https://talentopoly-staging.heroku.com/api/v1/valid.json?api_key=' + key, 
+						url: apiURL + verbValid + params, 
 						success: function(data) { 
 							if (data === "true") {
 								retVal = true;
-							} 
+								clearLoginForm();
+							}  else {
+								
+							}
 						}, 
-						error: function(data) { alert("Could not validate your API Key!!"); },
-						dataType: 'html', 
+						error: function(data, status, exception) { errorCount++; $('#login_errors').addClass('error').html("Could not validate your API Key!!<br/>" + data.responseText).show(); resizePopover(); },
+						dataType: 'text', 
 						async: false
 					});
 				return retVal;
 			}
-		</script>
+			
+			function logout() {
+				safari.extension.secureSettings.api_key = '';
+				isKeyValid = false;
+				clearLoginForm();
+				clearPostForm();
+				showLoginContainer();
+			}
+			
+			function openPost(id) {
+				var settingOpenOnPost = safari.extension.settings.openOnPost;
+				if (!id) { return; }
+				
+				if (settingOpenOnPost === "never" || settingOpenOnPost == null) { return; }
+				
+				var newTab = safari.application.activeBrowserWindow.openTab('background');
+				newTab.url = postsURL + id;
+					
+				if (settingOpenOnPost === "foreground") {
+					newTab.activate();
+				}
+					
+				return id;
+			}
+			
+			function clearLoginForm() {
+				$('#email').val('');
+				$('#password').val('');
+				$('#post_errors').html('').hide().removeClass('error success');
+			}
+			
+			function clearPostForm() {
+				$('#post_link').val('');
+				$('#post_title').val('');
+				$('#post_description').val('');
+				$('#post_tag_list').val('');
+				$('#similar_posts').html('').hide();
+				isSimilarDisplayed = false;
+				$('#post_errors').html('').hide().removeClass('error success');
+				errorCount = 0;
+				resizePopover();
+			}
+			
+			function showLoginContainer() {
+				$('#login_container').show();
+				$('#post_container').hide();
+				$('#email').focus();
+				resizePopover();
+			}
+			
+			function showPostForm() {
+				$('#login_container').hide();
+				$('#post_container').show();
+				$('#post_description').focus();
+				resizePopover();
+			}
+			
+			function openLink(anchor) {
+				var tab = safari.application.activeBrowserWindow.openTab(); 
+				tab.url = $(anchor).attr('href'); 
+			}
+			
+			function settingChanged(event) {
+				//alert('Key: ' + event.key + ' New Value: ' + event.newValue + ' Old Value: ' + event.oldValue);
+			}
 
+			safari.application.addEventListener("popover", kickstart, true);
+			safari.extension.settings.addEventListener("change", settingChanged, false);
+			
+		</script>
+		
 		<link href="stylesheets/text.css" media="screen" rel="stylesheet" type="text/css" />
-		<link href="stylesheets/form.css" media="screen" rel="stylesheet" type="text/css" />
+		
 		<link href="stylesheets/dispatch.css" media="screen" rel="stylesheet" type="text/css" />
 		<link href="stylesheets/jquery.tagsinput.css" media="screen" rel="stylesheet" type="text/css" />
 		<link href="stylesheets/autocomplete.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
-	<body onload="return false;">
-		<div id="api_form" style="display:none;">
-			<form accept-charset="UTF-8" action="#" onsubmit="fetch_api_key($(this));return false;" class="new_post" data-remote="true" enctype="multipart/form-data" id="fetch_api_key" method="GET" class="form">
-				<div><label for="email">Email</label><input id="email" name="email" size="30" type="text"></div>
-				<div><label for="password">Password</label><input id="password" name="password" size="30" type="password"></div>
-				<span id="testing"></span>
-				<input class="loadable" id="post_button" name="commit" type="submit" value="Done">
-			</form>
+	<body onload="kickstart(); return false;">
+		<div id="header">
+			<img alt="Logo" src="images/logo.png">
 		</div>
-		<div id="new_dispatch">
-			<div id="new_dispatch_form">
-				<form accept-charset="UTF-8" action="https://talentopoly.com/api/v1/posts.json" class="new_post" data-remote="true" enctype="multipart/form-data" id="new_post" method="post" name="new_post">
-					<div style="margin:0;padding:0;display:inline">
-						<input name="utf8" type="hidden" value="✓">
-						<input id="api_key" name="api_key" type="hidden" value="">
-					</div>
-					<div id="post_errors"></div>
-					<div id="link">
+		<div id="login_container" class="div-form">
+			<div id="login_panel" style="">
+				<form accept-charset="UTF-8" action="#" data-remote="true" id="login_form" method="post" onsubmit="fetchAPIKey($(this)); return false;" name="login_form">
+					<div id="login_errors" style="display:none;"></div>
+					<div id="email_label">
 						<div>
-							<label for="post_link">Link</label>
+							<label for="email">Email</label>
 						</div>
 						<div>
-							<input id="post_link" name="link" size="30" type="text">
+							<input class="login_field" id="email" name="email" type="text">
 						</div>
 					</div>
-					<div id="title">
+					<div id="password_label">
 						<div>
-							<label for="post_title">Title</label> <img alt="Loading" id="fetching_title" src="images/loading.gif" style="display: none;" name="fetching_title">
+							<label for="password">Password</label>
 						</div>
 						<div>
-							<input id="post_title" name="title" size="30" type="text">
-						</div>
-					</div>
-					<div id="similar" style="display: none;">
-						<div>
-							<label>Similar posts (please check)</label> Has this already been posted?
-						</div>
-						<div id="similar_posts"></div>
-					</div>
-					<div id="description">
-						<div>
-							<label for="post_description">Description (optional)</label> You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">markdown syntax</a>
-						</div>
-						<div>
-							<textarea cols="40" id="post_description" name="description" rows="20"></textarea>
+							<input class="login_field" id="password" name="password" type="password" value="">
 						</div>
 					</div>
-					<div id="tags">
-						<div>
-							<label for="post_tag_list">Tags (optional)</label> Type enter or a comma to create a tag
-						</div>
-						<div>
-							<input id="post_tag_list" name="tag_list" size="30" type="text" value="">
-						</div>
-					</div>
+
 					<div id="base">
-						<div id="actions">
-							<input class="loadable" id="post_button" name="commit" type="submit" value="Done">
-						</div>
-						<div style="clear: both;"></div>
 						<div id="guidelines">
-							<a href="/static/site_guidelines" target="_blank">Read the Site Guidelines</a>
+							<a href="https://talentopoly.com/static/site_guidelines" onclick="openLink(this); return false;">Read the Site Guidelines</a><br />
+							<a href="https://talentopoly.com/forgot_password" onclick="openLink(this); return false;">Need Help?</a>
+						</div>
+						<div id="login_actions">
+							<div id="login_spinner" style="display:none;vertical-align:middle;"><img src="images/spinner.gif" style="vertical-align:middle;margin-top:5px;height:30px;" /></div>
+							<input id="login_button" style="" type="submit" value="Login" name="login" type="image">
 						</div>
 						<div style="clear: both;"></div>
-					</div><input id="post_bookmarklet" name="post[bookmarklet]" type="hidden" value="true">
+					</div>
+					<div id="login_bar">
+						
+						<div class="clear"></div>
+					</div>
+					<div id="login_misc">
+
+					</div>
 				</form>
 			</div>
+		</div>
+		
+		<div id="post_container" class="div-form">
+			<form accept-charset="UTF-8" action="#" onsubmit="submitPost($(this));return false;" class="new_post" data-remote="true" enctype="multipart/form-data" id="new_post" method="post" name="new_post">
+				<div style="margin:0;padding:0;display:inline">
+					<input name="utf8" type="hidden" value="✓">
+					<input id="api_key" name="api_key" type="hidden" value="">
+				</div>
+				<div id="post_errors" style="display:none;"></div>
+				<div id="link">
+					<div>
+						<label for="post_link">Link</label>
+					</div>
+					<div>
+						<input id="post_link" name="link" size="30" type="text">
+					</div>
+				</div>
+				<div id="title">
+					<div>
+						<label for="post_title">Title</label> <img alt="Loading" id="fetching_title" src="images/loading.gif" style="display: none;" name="fetching_title">
+					</div>
+					<div>
+						<input id="post_title" name="title" size="30" type="text">
+					</div>
+				</div>
+				<div id="similar" style="display: none;">
+					<div>
+						<label>Similar posts (please check)</label> Has this already been posted?
+					</div>
+					<div id="similar_posts"></div>
+				</div>
+				<div id="description">
+					<div>
+						<label for="post_description">Description (optional)</label> You can use <a href="http://daringfireball.net/projects/markdown/syntax" onclick="openLink(this); return false;">markdown syntax</a>
+					</div>
+					<div>
+						<textarea cols="40" id="post_description" name="description" rows="20"></textarea>
+					</div>
+				</div>
+				<div id="tags">
+					<div>
+						<label for="post_tag_list">Tags (optional)</label> Type enter or a comma to create a tag
+					</div>
+					<div>
+						<input id="post_tag_list" name="tag_list" size="30" type="text" value="">
+					</div>
+				</div>
+				<div id="base">
+					<div id="guidelines">
+						<a href="https://talentopoly.com/static/site_guidelines" onclick="openLink(this); return false;">Read the Site Guidelines</a><br />
+						<a href="#" onclick="logout(); return false;">Logout</a>
+					</div>
+					<div id="post_actions">
+						<input id="post_button" name="commit" type="submit" value="Post" />
+					</div>
+					<div style="clear: both;"></div>
+				</div><input id="post_bookmarklet" name="post[bookmarklet]" type="hidden" value="true">
+			</form>
 		</div>
 
 		<script type="text/javascript">
 			//<![CDATA[
-		  $('#post_link').change(function() {
-		    $('#fetching_title').show();
-		    $.get("/posts/title", { link: $(this).val() }, 'script').always(function() {
-		      $('#fetching_title').hide();
-		    });
-		  });
-
 			$('#post_tag_list').tagsInput({
 				height: '70px',
-				width: '500px',
+				width: '400px',
 				defaultText: '',
-				autocomplete_url: '/tags/autocomplete.json'
-			});          
+				autocomplete_url: baseURL + '/tags/autocomplete.json'
+			});
+			
+			$('#post_link').change( function() { validateLinkChange(); } );
+			$('#post_title').change( function() { validateTitleChange(); } );
+
 			//]]>
 		</script>
+		
 	</body>
 </html>

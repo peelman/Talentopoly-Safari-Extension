@@ -12,5 +12,27 @@
 		<key>Type</key>
 		<string>TextField</string>
 	</dict>
+	<dict>
+		<key>DefaultValue</key>
+		<string>never</string>
+		<key>Key</key>
+		<string>openOnPost</string>
+		<key>Title</key>
+		<string>Open Posts</string>
+		<key>Titles</key>
+		<array>
+			<string>Never</string>
+			<string>In the Background</string>
+			<string>In the Foreground</string>
+		</array>
+		<key>Type</key>
+		<string>RadioButtons</string>
+		<key>Values</key>
+		<array>
+			<string>never</string>
+			<string>background</string>
+			<string>foreground</string>
+		</array>
+	</dict>
 </array>
 </plist>

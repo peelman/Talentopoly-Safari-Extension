@@ -3,32 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>Nick Peelman</string>
+	<string>Nick Peelman (http://peelman.us)</string>
 	<key>Builder Version</key>
 	<string>7534.52.7</string>
 	<key>CFBundleDisplayName</key>
 	<string>Talentopoly</string>
 	<key>CFBundleIdentifier</key>
-	<string>us.peelman.talentopoly</string>
+	<string>us.peelman.talentopoly.safariext</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>2.0</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>2.0</string>
 	<key>Chrome</key>
 	<dict>
-		<key>Context Menu Items</key>
-		<array>
-			<dict>
-				<key>Command</key>
-				<string>showSharer</string>
-				<key>Identifier</key>
-				<string>CtxShareOnTalentopoly</string>
-				<key>Title</key>
-				<string>Share on Talentopoly</string>
-			</dict>
-		</array>
 		<key>Global Page</key>
 		<string>global.html</string>
 		<key>Popovers</key>
@@ -37,18 +26,18 @@
 				<key>Filename</key>
 				<string>popover.html</string>
 				<key>Height</key>
-				<real>800</real>
+				<real>276</real>
 				<key>Identifier</key>
 				<string>PopoverSharer</string>
 				<key>Width</key>
-				<real>600</real>
+				<real>470</real>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
 		<array>
 			<dict>
 				<key>Command</key>
-				<string>showSharer</string>
+				<string></string>
 				<key>Identifier</key>
 				<string>BtnShareOnTalentopoly</string>
 				<key>Image</key>
@@ -59,22 +48,10 @@
 				<string>Talentopoly</string>
 				<key>Palette Label</key>
 				<string>Talentopoly</string>
-				<key>Tool Tip</key>
-				<string>Share on Talentopoly</string>
-			</dict>
-			<dict>
-				<key>Identifier</key>
-				<string>PopoverButton</string>
-				<key>Image</key>
-				<string>icon-48.png</string>
-				<key>Label</key>
-				<string>Popover</string>
-				<key>Palette Label</key>
-				<string>popover</string>
 				<key>Popover</key>
 				<string>PopoverSharer</string>
 				<key>Tool Tip</key>
-				<string>popover</string>
+				<string>Share this page on Talentopoly!</string>
 			</dict>
 		</array>
 	</dict>
