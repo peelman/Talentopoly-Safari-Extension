@@ -158,7 +158,7 @@
 			}
 			
 			function submitPost(form) {
-				spinner.spin($('#post_actions')[0]);
+				$("#post_spinner").show();
 				$('#post_button').hide();
 				var formData = form.serialize();
 				$.ajax({
@@ -166,7 +166,7 @@
 						url: apiURL + verbPost, 
 						success: function(data) { openPost(data.id); clearPostForm(); $('#post_errors').addClass('success').html("Success!").show(); setTimeout("popover.hide()", 2000) },
 						error: function(data, status, exception) { $('#post_errors').addClass('error').html(data.responseText).show(); popover.height = popover.height + popoverHeight_errors; },
-						complete: function(data, status) { $('#post_button').show(); spinner.stop(); },
+						complete: function(data, status) { $('#post_button').show();$("#post_spinner").hide(); },
 						data: formData,
 						dataType: 'json'
 					});	
@@ -179,12 +179,13 @@
 			function fetchAPIKey(form) {
 				$("#login_spinner").show();
 				$('#login_button').hide();
+				errorCount = 0;
 				var params = '?' + form.serialize();
 				$.ajax({
 						url: apiURL + verbKey + params, 
 						success: function(data) { safari.extension.secureSettings.api_key = data; kickstart(); },
 						error: function(data) { errorCount++; $('#login_errors').addClass('error').html(data.responseText).show(); resizePopover(); restore(); },
-						complete: function(data, status) { setTimeout('restore()',5000); },
+						complete: function(data, status) { $('#login_button').show();$("#login_spinner").hide(); },
 						dataType: 'text'
 					});		
 			}
@@ -384,6 +385,7 @@
 						<a href="#" onclick="logout(); return false;">Logout</a>
 					</div>
 					<div id="post_actions">
+						<div id="post_spinner" style="display:none;vertical-align:middle;"><img src="images/spinner.gif" style="vertical-align:middle;margin-top:5px;height:30px;" /></div>
 						<input id="post_button" name="commit" type="submit" value="Post" />
 					</div>
 					<div style="clear: both;"></div>
