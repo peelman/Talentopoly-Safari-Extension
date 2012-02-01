@@ -8,7 +8,7 @@
 		
 		<script type="text/javascript">
 			var baseURL		= 'https://talentopoly-staging.heroku.com/';
-//			var baseURL = 'https://talentopoly.com/';
+			// var baseURL = 'https://talentopoly.com/';
 
 			var apiURL		= baseURL + 'api/v1/';
 			var postsURL	= baseURL + 'posts/';
@@ -26,10 +26,10 @@
 				status: 115,
 				add: { error: 55, similar: 115 }
 			}
-			
+			var oldTab;
 			var statusCount = 0;
 			var isSimilarDisplayed = false;
-			var isKeyValid = false;		
+			var isKeyValid = false;
 			
 			var feedbackMessages = {
 				url_length: { id:'url_length_error', 		type:'error', 	msg:'<li id="url_length_error">URL must be present and cannot be longer than 255 Characters</li>' },
@@ -53,14 +53,19 @@
 			}
 			
 			function updateFields() {
-				var pageURL = safari.application.activeBrowserWindow.activeTab.url;
-				var pageTitle = safari.application.activeBrowserWindow.activeTab.title;
-
+				var newTab = safari.application.activeBrowserWindow.activeTab;
+				
+				if (newTab === oldTab) { return; }
+				
+				var pageURL = newTab.url;
+				var pageTitle = newTab.title;
+				
 				statusCount = 0;
+				oldTab = safari.application.activeBrowserWindow.activeTab;
 				$('#post_errors').html('').hide().removeClass('error success');
 				$('#post_link').val(pageURL);
 				$('#post_title').val(pageTitle);
-
+				
 				validateLinkChange();
 				validateTitleChange();
 			}
