@@ -101,14 +101,6 @@
   font-size: 14px;
 }
 
-#post_errors ul, #login_errors ul {
-  margin: 20px 0 20px 40px;
-}
-
-#post_errors li, #login_errors li, #question_errors li {
-  list-style: disc outside none;
-}
-
 .div-form #post_button, #login_button {
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
@@ -128,22 +120,27 @@
 	box-shadow:none;
 }
 
-#post_errors, #login_errors {
+#post_errors, #login_errors, #status_container {
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	margin:10px;
-	padding:10px;
+	padding:5px;
 }
 
-#post_errors.error, #login_errors.error {
+#post_errors.error, #login_errors.error, #status_container.error {
 	border:2px solid red;
 	background:#fcc;
 	color:#000;
 }
 
-#post_errors.success, #login_errors.success {
+#post_errors.success, #login_errors.success, #status_container.success {
 	border:2px solid green;
 	background:#cfc;
 	color:#000;
 }
+
+#post_errors li, #login_errors li, #question_errors li,  #status_container li {
+	  list-style: none outside none;
+	  text-align:center;
+	}
