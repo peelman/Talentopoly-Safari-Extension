@@ -1,4 +1,13 @@
 @charset "UTF-8";
+body{font:13px/1.5 'Helvetica Neue',Arial,Helvetica,sans-serif;color:#0e2334;letter-spacing:0.5px;}
+a{color:#247dd2;text-decoration:none;}
+h1{font-size:25px}
+h2{font-size:23px}
+h3{font-size:21px}
+h4{font-size:19px}
+h5{font-size:17px}
+h6{font-size:15px}
+p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 
 #header {
 	width:450px;
@@ -8,6 +17,10 @@
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
+	color:#fff;
+	font-weight:bold;
+	font-size:130%;
+	font-variant:small-caps;
 }
 
 #header img {
@@ -145,3 +158,44 @@
 	  list-style: none outside none;
 	  text-align:center;
 	}
+
+/* Autocomplete */
+.ui-menu {
+	display: block;
+	float: left;
+	list-style: none outside none;
+	margin: 0;
+	padding: 2px;
+}
+
+.ui-autocomplete {
+	max-height: 160px;
+	width: 240px;
+	overflow-y: auto;
+	/* prevent horizontal scrollbar */
+	overflow-x: hidden;
+	/* add padding to account for vertical scrollbar */
+}
+
+.ui-widget-content {
+	background-color: #efefef;
+	border: 1px solid #ccc;
+}
+
+.ui-menu-item {
+	clear: left;
+	float: left;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+.ui-menu-item a {
+	display: block;
+	padding: 5px;
+}
+
+.ui-state-hover {
+	font-weight: bold;
+	background-color: #b8ddff;
+}
