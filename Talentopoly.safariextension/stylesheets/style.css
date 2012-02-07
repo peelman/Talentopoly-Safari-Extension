@@ -9,6 +9,10 @@ h5{font-size:17px}
 h6{font-size:15px}
 p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 
+.red { color:red; }
+
+.em { font-weight:bolder; }
+
 #header {
 	width:450px;
 	height: 50px;
@@ -43,6 +47,9 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
   border-bottom: 1px solid #ccc;
 }
 
+.div-form #link img {
+	vertical-align:middle;
+}
 .div-form div.tagsinput input {
   border: 1px solid transparent;
   color: #000000;
@@ -81,6 +88,12 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 
 #post_title, #question_title, #post_link, #post_tag_list, #email, #password {
   width: 400px;
+}
+
+#post_link {
+	width:375px;
+	vertical-align:middle;
+	margin-right:5px;
 }
 
 .div-form .similar_post {

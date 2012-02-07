@@ -21,10 +21,7 @@
 			var popover = safari.extension.popovers[0];
 			var popoverHeights = {
 				max: 725,
-				login: 280,
-				post: 530,
-				status: 115,
-				add: { error: 55, similar: 115 }
+				add: { padding: 20 }
 			}
 			var oldTab;
 			var statusCount = 0;
@@ -52,10 +49,10 @@
 				resizePopover();
 			}
 			
-			function updateFields() {
+			function updateFields(force) {
 				var newTab = safari.application.activeBrowserWindow.activeTab;
 				
-				if (newTab === oldTab) { return; }
+				if (newTab === oldTab && !force) { return; }
 				
 				var pageURL = newTab.url;
 				var pageTitle = newTab.title;
@@ -71,21 +68,9 @@
 			}
 			
 			function resizePopover(newSize) {
-				var size = 0;
+				var size = $('body').height() + popoverHeights.add.padding;
+				
 				if ( newSize > 0 ) { popover.height = newSize; return; }
-				if (isKeyValid) {
-					size += popoverHeights.post;
-				} else {
-					size += popoverHeights.login;
-				}
-				
-				if (isSimilarDisplayed) {
-					size += popoverHeights.add.similar;
-				}
-				
-				if (statusCount > 0) {
-					size += (statusCount * popoverHeights.add.error);
-				}
 				
 				popover.height = Math.min(popoverHeights.max, size);
 			}
@@ -154,7 +139,7 @@
 						$('#similar').show();
 					},
 					error: function(jqxhr, status, exception) { $('#similar').hide(); isSimilarDisplayed = false; },
-					complete: function(data, status) { },
+					complete: function(data, status) { resizePopover(); },
 					dataType: 'json'
 				});			
 			}
@@ -180,7 +165,7 @@
 				clearPostForm();
 				addStatus(feedbackMessages.success.type, feedbackMessages.success.msg);
 				$('#post_container').hide();
-				popover.height = popoverHeights.status;
+				resizePopover();
 				setTimeout("popover.hide()", 2500)
 			}
 			
@@ -203,7 +188,7 @@
 				if ( statusCount > 0 ) {
 					$('#status_container').show(); 
 				} else {
-					$('#status_container').hide();
+					$('#status_container').hide().html('');
 				}
 				resizePopover();
 			}
@@ -211,6 +196,8 @@
 			function validateLinkChange(event) {
 				var postURL = $('#post_link').val();
 				var e = feedbackMessages.url_length;
+				
+				updateLinkLength();
 				
 				if (postURL < 1 || postURL.length > 255) {
 					addStatus( e.type, e.msg, '<li id="' + e.id + '">' );
@@ -220,15 +207,29 @@
 				}
 			}
 			
+			function updateLinkLength() {
+				$('#post_link_length').html(200-$('#post_link').val().length + ' Characters Remaining');
+				if ( $('#post_link').val().length > 200 ) { $('#post_link_length').addClass('red em'); }
+				else { $('#post_link_length').removeClass(); }
+			}
+			
 			function validateTitleChange(event) {
 				var postTitle = $('#post_title').val();
 				var e = feedbackMessages.title_length;
+				
+				updateTitleLength();
 				
 				if (postTitle.length < 5 || postTitle.length > 255) {
 					addStatus( e.type, e.msg, '<li id="' + e.id + '">' );
 				} else {
 					removeStatusById(e.id);
 				}
+			}
+			
+			function updateTitleLength() {
+				$('#post_title_length').html(200-$('#post_title').val().length + ' Characters Remaining');
+				if ( $('#post_title').val().length > 200 ) { $('#post_title_length').addClass('red em'); }
+				else { $('#post_title_length').removeClass(); }
 			}
 			
 			function addStatus(elmClass, text, wrapper) {
@@ -371,15 +372,17 @@
 				<ul id="post_errors" style="display:none;"></ul>
 				<div id="link">
 					<div>
-						<label for="post_link">Link</label>
+						<label for="post_link">Link</label> 
+						<small style="float:right;" id="post_link_length"></small>
 					</div>
 					<div>
-						<input id="post_link" name="link" size="30" type="text">
+						<input id="post_link" name="link" size="25" type="text"> <a href="#" onClick="updateFields(true);return false;"> <img src="images/refresh.png" style="width:20px" title="Refresh" /></a>
 					</div>
 				</div>
 				<div id="title">
 					<div>
 						<label for="post_title">Title</label> 
+						<small style="float:right;" id="post_title_length"></small>
 					</div>
 					<div>
 						<input id="post_title" name="title" size="30" type="text">
@@ -431,8 +434,9 @@
 			});
 			
 			$('#post_link').change( function() { validateLinkChange(); } );
+			$('#post_link').keyup( function() { updateLinkLength(); } );
 			$('#post_title').change( function() { validateTitleChange(); } );
-
+			$('#post_title').keyup( function() { updateTitleLength(); } );
 			//]]>
 		</script>
 		
