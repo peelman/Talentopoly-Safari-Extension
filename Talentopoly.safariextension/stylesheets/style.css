@@ -121,21 +121,22 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
   font-size: 14px;
 }
 
-.div-form #post_button, #login_button {
+#post_button, #login_button {
 	border-radius: 10px;
 	color:#fff;
 	background-color:#034078;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(55%,#034078), color-stop(100%,#47a)); 
 	padding: 5px 25px;
 	border:1px solid black;
-	border-bottom:1px solid white;
-	box-shadow: 0px 3px 0px 0px #444;
+/*	border-bottom:1px solid white;*/
+	box-shadow: 0px 2px 0px 0px #444;
 	font-weight:bold;
 	font-size:130%;
 	font-variant:small-caps;
+	text-shadow:0 -1px 0 #000;
 }
 
-.div-form #post_button:active, #login_button:active {
+#post_button:active, #login_button:active {
 	border-bottom:none;
 /*	background: -webkit-gradient(linear, left top, left bottom, color-stop(75%,#034078), color-stop(100%,#69c)); */
 	position:relative;
@@ -143,28 +144,28 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 	box-shadow:none;
 }
 
-#post_errors, #login_errors, #status_container {
+#status_container {
 	border-radius: 10px;
 	margin:10px;
 	padding:5px;
 }
 
-#post_errors.error, #login_errors.error, #status_container.error {
+#status_container.error {
 	border:2px solid red;
 	background:#fcc;
 	color:#000;
 }
 
-#post_errors.success, #login_errors.success, #status_container.success {
+#status_container.success {
 	border:2px solid green;
 	background:#cfc;
 	color:#000;
 }
 
-#post_errors li, #login_errors li, #question_errors li,  #status_container li {
+#status_container li {
 	  list-style: none outside none;
 	  text-align:center;
-	}
+}
 
 /* Autocomplete */
 .ui-menu {

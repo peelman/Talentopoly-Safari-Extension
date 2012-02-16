@@ -23,8 +23,7 @@
 				max: 725,
 				add: { padding: 20 }
 			}
-			var oldTab;
-			var statusCount = 0;
+			var oldTab, oldURL;
 			var isSimilarDisplayed = false;
 			var isKeyValid = false;
 			
@@ -51,16 +50,14 @@
 			
 			function updateFields(force) {
 				var newTab = safari.application.activeBrowserWindow.activeTab;
-				
-				if (newTab === oldTab && !force) { return; }
-				
-				var pageURL = newTab.url;
+				var newURL = newTab.url;
 				var pageTitle = newTab.title;
 				
-				statusCount = 0;
-				oldTab = safari.application.activeBrowserWindow.activeTab;
-				$('#post_errors').html('').hide().removeClass('error success');
-				$('#post_link').val(pageURL);
+				if (newTab === oldTab && newURL === oldURL && !force) { return; }
+				else { oldTab = safari.application.activeBrowserWindow.activeTab; oldURL = newURL; }
+				
+				$('#status_container').html('').hide().removeClass('error success');
+				$('#post_link').val(newURL);
 				$('#post_title').val(pageTitle);
 				
 				validateLinkChange();
@@ -78,7 +75,7 @@
 			function fetchAPIKey(form) {
 				$("#login_spinner").show();
 				$('#login_button').hide();
-				statusCount = 0;
+				
 				var params = '?' + form.serialize();
 				var ajaxFetch = $.ajax({
 						url: apiURL + verbKey + params, 
@@ -185,10 +182,10 @@
 				return id;
 			}
 			function validateStatusBox() {
-				if ( statusCount > 0 ) {
+				if ( $('#status_container').html().length > 0 ) {
 					$('#status_container').show(); 
 				} else {
-					$('#status_container').hide().html('');
+					$('#status_container').hide();
 				}
 				resizePopover();
 			}
@@ -236,7 +233,6 @@
 				wrapper = (typeof(wrapper) != 'undefined') ? wrapper : '<li>';
 				var c = $('#status_container');
 				c.removeClass().addClass(elmClass)
-				statusCount++;
 				try {
 					var json = $.parseJSON(text);
 					c.html($(wrapper).append(json.link))
@@ -248,7 +244,6 @@
 			
 			function removeStatusById(id) {
 				if ( $('#status_container #'+id).length ) {
-					statusCount--;
 					$('#status_container #'+id).remove();
 				}
 				validateStatusBox();
@@ -273,7 +268,6 @@
 				$('#similar_posts').html('');
 				isSimilarDisplayed = false;
 
-				statusCount = 0;
 				resizePopover();
 			}
 			
@@ -323,7 +317,6 @@
 		<div id="login_container" class="div-form">
 			<div id="login_panel" style="">
 				<form accept-charset="UTF-8" action="#" data-remote="true" id="login_form" method="post" onsubmit="fetchAPIKey($(this)); return false;" name="login_form">
-					<ul id="login_errors" style="display:none;"></ul>
 					<div id="email_label">
 						<div>
 							<label for="email">Email</label>
@@ -369,7 +362,6 @@
 					<input name="utf8" type="hidden" value="✓">
 					<input id="api_key" name="api_key" type="hidden" value="">
 				</div>
-				<ul id="post_errors" style="display:none;"></ul>
 				<div id="link">
 					<div>
 						<label for="post_link">Link</label> 
