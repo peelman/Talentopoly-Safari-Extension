@@ -47,6 +47,11 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
   border-bottom: 1px solid #ccc;
 }
 
+
+.div-form #schedule {
+	padding:8px, 16px;
+}
+
 .div-form #link img {
 	vertical-align:middle;
 }
@@ -107,7 +112,7 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 
 .div-form #post_description, .div-form #question_description {
   width: 400px;
-  height: 80px;
+  height: 40px;
 }
 
 .div-form #post_snippet {
@@ -142,6 +147,10 @@ p,dl,hr,h1,h2,h3,h4,h5,h6,ol,ul,pre,table,address,fieldset{margin-bottom:20px}
 	position:relative;
 	top:3px;
 	box-shadow:none;
+}
+
+#post_spinner, #login_spinner {
+	display: inline-block;
 }
 
 #status_container {

@@ -24,7 +24,6 @@
 				add: { padding: 20 }
 			}
 			var oldTab, oldURL;
-			var isSimilarDisplayed = false;
 			var isKeyValid = false;
 			
 			var feedbackMessages = {
@@ -127,15 +126,14 @@
 					type: 'GET',
 					url: apiURL + verbSimilar + params, 
 					success: function(data, status, jqxhr) {
-						if (data.length < 1) { $('#similar').hide(); isSimilarDisplayed = false; resizePopover(); return; }
+						if (data.length < 1) { $('#similar').hide(); resizePopover(); return; }
 						$(data).each(function() {
 							$('#similar_posts').append('<a href="' + postsURL + this.id + '" class="similar_post" title="' + this.link + '" onclick="openLink(this); return false;">' + this.title + '</a>');
 						});
-						isSimilarDisplayed = true;
 						resizePopover();
 						$('#similar').show();
 					},
-					error: function(jqxhr, status, exception) { $('#similar').hide(); isSimilarDisplayed = false; },
+					error: function(jqxhr, status, exception) { $('#similar').hide(); },
 					complete: function(data, status) { resizePopover(); },
 					dataType: 'json'
 				});			
@@ -148,7 +146,7 @@
 				var ajaxSubmit = $.ajax({
 						type: 'POST',
 						url: apiURL + verbPost,
-						success: function(data, status, jqxhr) { successfulPost(data); },
+						success: function(data, status, jqxhr) { postSuccessful(data); },
 						error: function(jqxhr, status, exception) { addStatus('error', jqxhr.responseText); },
 						complete: function(data, status) { },
 						data: formData,
@@ -157,7 +155,7 @@
 				ajaxSubmit.always(function(data, status) { $('#post_button').show(); $("#post_spinner").hide(); })
 			}
 			
-			function successfulPost(data) {
+			function postSuccessful(data) {
 				openPost(data.id); 
 				clearPostForm();
 				addStatus(feedbackMessages.success.type, feedbackMessages.success.msg);
@@ -232,12 +230,15 @@
 			function addStatus(elmClass, text, wrapper) {
 				wrapper = (typeof(wrapper) != 'undefined') ? wrapper : '<li>';
 				var c = $('#status_container');
-				c.removeClass().addClass(elmClass)
+				c.removeClass().addClass(elmClass);
+				c.html( text );
 				try {
 					var json = $.parseJSON(text);
-					c.html($(wrapper).append(json.link))
+					json.each(function(index, object) {
+						c.html(c.html() + $(wrapper).append('Error: ' + o))
+					});
 				} catch (ex) {
-					c.html($(wrapper).append(text))
+					c.html($(wrapper).append('Error: ' + ex + text))
 				}
 				validateStatusBox();
 			}
@@ -266,7 +267,6 @@
 
 				$('#similar').hide();
 				$('#similar_posts').html('');
-				isSimilarDisplayed = false;
 
 				resizePopover();
 			}
@@ -408,6 +408,12 @@
 						<a href="#" onclick="logout(); return false;">Logout</a>
 					</div>
 					<div id="post_actions">
+						<div id="schedule" style="display:inline-block;">
+							<div>
+								<label for="post_hours_from_now" >Post in</label>
+								<input id="post_hours_from_now" name="hours_from_now" size="2" type="text" value="0"> hour(s)
+							</div>
+						</div>
 						<div id="post_spinner" style="display:none;vertical-align:middle;"><img src="images/spinner.gif" style="vertical-align:middle;margin-top:5px;height:30px;" /></div>
 						<input id="post_button" name="commit" type="submit" value="Post" />
 					</div>
@@ -419,7 +425,7 @@
 		<script type="text/javascript">
 			//<![CDATA[
 			$('#post_tag_list').tagsInput({
-				height: '70px',
+				height: '40px',
 				width: '400px',
 				defaultText: '',
 				autocomplete_url: baseURL + '/tags/autocomplete.json'
