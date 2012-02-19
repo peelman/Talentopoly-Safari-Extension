@@ -12,7 +12,10 @@
 
 			var apiURL		= baseURL + 'api/v1/';
 			var postsURL	= baseURL + 'posts/';
-
+			
+			var maxLinkLength	= 255;
+			var maxTitleLength	= 255;
+			
 			var verbPost	= 'posts.json';
 			var verbSimilar = 'posts/similar.json';
 			var verbKey		= 'api_key.json';
@@ -53,7 +56,11 @@
 				var pageTitle = newTab.title;
 				
 				if (newTab === oldTab && newURL === oldURL && !force) { return; }
-				else { oldTab = safari.application.activeBrowserWindow.activeTab; oldURL = newURL; }
+				
+				oldTab = safari.application.activeBrowserWindow.activeTab; 
+				oldURL = newURL;
+				
+				clearPostForm();
 				
 				$('#status_container').html('').hide().removeClass('error success');
 				$('#post_link').val(newURL);
@@ -194,7 +201,7 @@
 				
 				updateLinkLength();
 				
-				if (postURL < 1 || postURL.length > 255) {
+				if (postURL < 1 || postURL.length > maxLinkLength) {
 					addStatus( e.type, e.msg, '<li id="' + e.id + '">' );
 				} else {
 					getSimilarPosts($('#post_link').val(), $('#post_title').val());
@@ -203,8 +210,9 @@
 			}
 			
 			function updateLinkLength() {
-				$('#post_link_length').html(200-$('#post_link').val().length + ' Characters Remaining');
-				if ( $('#post_link').val().length > 200 ) { $('#post_link_length').addClass('red em'); }
+				var length = $('#post_link').val().length;
+				$('#post_link_length').html(maxLinkLength-length + ' Characters Remaining');
+				if ( length > maxLinkLength ) { $('#post_link_length').addClass('red em'); }
 				else { $('#post_link_length').removeClass(); }
 			}
 			
@@ -214,7 +222,7 @@
 				
 				updateTitleLength();
 				
-				if (postTitle.length < 5 || postTitle.length > 255) {
+				if (postTitle.length < 5 || postTitle.length > maxTitleLength) {
 					addStatus( e.type, e.msg, '<li id="' + e.id + '">' );
 				} else {
 					removeStatusById(e.id);
@@ -222,23 +230,48 @@
 			}
 			
 			function updateTitleLength() {
-				$('#post_title_length').html(200-$('#post_title').val().length + ' Characters Remaining');
-				if ( $('#post_title').val().length > 200 ) { $('#post_title_length').addClass('red em'); }
+				var length = $('#post_title').val().length;
+				$('#post_title_length').html(maxTitleLength - length + ' Characters Remaining');
+				if ( length > maxTitleLength ) { $('#post_title_length').addClass('red em'); }
 				else { $('#post_title_length').removeClass(); }
 			}
 			
-			function addStatus(elmClass, text, wrapper) {
-				wrapper = (typeof(wrapper) != 'undefined') ? wrapper : '<li>';
+			function addStatus(elmClass, text, wrap) {
+				var wrapper = (typeof(wrap) != 'undefined') ? wrap : $('<li>');
 				var c = $('#status_container');
 				c.removeClass().addClass(elmClass);
-				c.html( text );
+				
+				// c.html( text );
 				try {
 					var json = $.parseJSON(text);
-					json.each(function(index, object) {
-						c.html(c.html() + $(wrapper).append('Error: ' + o))
-					});
+					
+					if (json.hasOwnProperty('link')) {
+						for (i in json.link) {
+							var text = json.link[i];
+							var id = 'link_' + text.replace(/ /g, '_');
+							if ( ! $('#status_container #' + id).length ) { c.append( $('<li id="' + id + '">').append('Link ' + text)); }
+						}
+					}
+					
+					if (json.hasOwnProperty('title')) {
+						for (i in json.title) {
+							var text = json.title[i];
+							var id = 'title_' + text.replace(/ /g, '_');
+							if ( ! $('#status_container #' + id).length ) { c.append($('<li id="' + id + '">').append('Title ' + text)); }
+						}
+					}
+					
+					if (json.hasOwnProperty('base')) {
+						for (i in json.base) {
+							var text = json.base[i];
+							var id = 'base_' + text.replace(/ /g, '_');
+							var id = id.substring(0,30);
+							if ( ! $('#status_container #' + id).length ) { c.append($('<li id="' + id + '">').append(text)); }
+						}
+					}
+					
 				} catch (ex) {
-					c.html($(wrapper).append('Error: ' + ex + text))
+					c.append($(wrapper).append(text + '<br />' + ex))
 				}
 				validateStatusBox();
 			}
@@ -299,7 +332,11 @@
 			function settingChanged(event) {
 				//alert('Key: ' + event.key + ' New Value: ' + event.newValue + ' Old Value: ' + event.oldValue);
 			}
-
+			
+			String.prototype.toCamel = function(){
+				return this.replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
+			};
+			
 			safari.application.addEventListener("popover", kickstart, true);
 			safari.extension.settings.addEventListener("change", settingChanged, false);
 			
