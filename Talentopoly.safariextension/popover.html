@@ -244,31 +244,42 @@
 				// c.html( text );
 				try {
 					var json = $.parseJSON(text);
-					
-					if (json.hasOwnProperty('link')) {
-						for (i in json.link) {
-							var text = json.link[i];
-							var id = 'link_' + text.replace(/ /g, '_');
-							if ( ! $('#status_container #' + id).length ) { c.append( $('<li id="' + id + '">').append('Link ' + text)); }
+
+					for (var key in json) {
+					  if (json.hasOwnProperty(key)) {
+						var values = json[key];
+						for ( i in values ) {
+							var text = values[i];
+							var id = key + '_' + text.replace(/ /g, '_').substring(0,30);
+							if ( ! $('#status_container #' + id).length ) { c.append( $('<li id="' + id + '">').append(key.toTitleCase() + ' ' + text)); }
 						}
+					  }
 					}
 					
-					if (json.hasOwnProperty('title')) {
-						for (i in json.title) {
-							var text = json.title[i];
-							var id = 'title_' + text.replace(/ /g, '_');
-							if ( ! $('#status_container #' + id).length ) { c.append($('<li id="' + id + '">').append('Title ' + text)); }
-						}
-					}
-					
-					if (json.hasOwnProperty('base')) {
-						for (i in json.base) {
-							var text = json.base[i];
-							var id = 'base_' + text.replace(/ /g, '_');
-							var id = id.substring(0,30);
-							if ( ! $('#status_container #' + id).length ) { c.append($('<li id="' + id + '">').append(text)); }
-						}
-					}
+					// if (json.hasOwnProperty('link')) {
+					// 	for (i in json.link) {
+					// 		var text = json.link[i];
+					// 		var id = 'link_' + text.replace(/ /g, '_');
+					// 		if ( ! $('#status_container #' + id).length ) { c.append( $('<li id="' + id + '">').append('Link ' + text)); }
+					// 	}
+					// }
+					// 
+					// if (json.hasOwnProperty('title')) {
+					// 	for (i in json.title) {
+					// 		var text = json.title[i];
+					// 		var id = 'title_' + text.replace(/ /g, '_');
+					// 		if ( ! $('#status_container #' + id).length ) { c.append($('<li id="' + id + '">').append('Title ' + text)); }
+					// 	}
+					// }
+					// 
+					// if (json.hasOwnProperty('base')) {
+					// 	for (i in json.base) {
+					// 		var text = json.base[i];
+					// 		var id = 'base_' + text.replace(/ /g, '_');
+					// 		var id = id.substring(0,30);
+					// 		if ( ! $('#status_container #' + id).length ) { c.append($('<li id="' + id + '">').append(text)); }
+					// 	}
+					// }
 					
 				} catch (ex) {
 					c.append($(wrapper).append(text + '<br />' + ex))
@@ -333,8 +344,22 @@
 				//alert('Key: ' + event.key + ' New Value: ' + event.newValue + ' Old Value: ' + event.oldValue);
 			}
 			
-			String.prototype.toCamel = function(){
-				return this.replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
+			String.prototype.toTitleCase = function () {
+			  var smallWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|vs?\.?|via)$/i;
+
+			  return this.replace(/([^\W_]+[^\s-]*) */g, function (match, p1, index, title) {
+			    if (index > 0 && index + p1.length !== title.length &&
+			      p1.search(smallWords) > -1 && title.charAt(index - 2) !== ":" && 
+			      title.charAt(index - 1).search(/[^\s-]/) < 0) {
+			      return match.toLowerCase();
+			    }
+
+			    if (p1.substr(1).search(/[A-Z]|\../) > -1) {
+			      return match;
+			    }
+
+			    return match.charAt(0).toUpperCase() + match.substr(1);
+			  });
 			};
 			
 			safari.application.addEventListener("popover", kickstart, true);
