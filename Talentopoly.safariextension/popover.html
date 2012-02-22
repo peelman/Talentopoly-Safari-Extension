@@ -27,6 +27,7 @@
 				add: { padding: 20 }
 			}
 			var oldTab, oldURL;
+			var tagsInput;
 			var isKeyValid = false;
 			
 			var feedbackMessages = {
@@ -44,6 +45,14 @@
 					showLoginContainer();
 				} else {
 					$('#api_key').val(api_key);
+					if (!tagsInput) {
+						tagsInput = $('#post_tag_list').tagsInput({
+										height: '40px',
+										width: '400px',
+										defaultText: '',
+										autocomplete_url: apiURL + '/tags/autocomplete.json?api_key=' + api_key
+									});
+					}
 					updateFields();
 					showPostForm();
 				}
@@ -486,12 +495,7 @@
 
 		<script type="text/javascript">
 			//<![CDATA[
-			$('#post_tag_list').tagsInput({
-				height: '40px',
-				width: '400px',
-				defaultText: '',
-				autocomplete_url: baseURL + '/tags/autocomplete.json'
-			});
+
 			
 			$('#post_link').change( function() { validateLinkChange(); } );
 			$('#post_link').keyup( function() { updateLinkLength(); } );
