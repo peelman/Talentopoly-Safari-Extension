@@ -10,11 +10,11 @@
 			<key>Developer Identifier</key>
 			<string>8UFHWG858N</string>
 			<key>CFBundleVersion</key>
-			<string>1.0</string>
+			<string>1.1</string>
 			<key>CFBundleShortVersionString</key>
-			<string>1.0</string>
+			<string>1.1</string>
 			<key>URL</key>
-			<string>http://peelman.us/talentopoly/Talentopoly.safariextz</string>
+			<string>https://github.com/downloads/peelman/Talentopoly-Safari-Extension/Talentopoly-v1.1.safariextz</string>
 		</dict>
 	</array>
 </dict>

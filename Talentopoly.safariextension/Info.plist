@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>Nick Peelman</string>
 	<key>Builder Version</key>
-	<string>7534.52.7</string>
+	<string>7536.2.3</string>
 	<key>CFBundleDisplayName</key>
 	<string>Talentopoly</string>
 	<key>CFBundleIdentifier</key>
@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Context Menu Items</key>
@@ -76,7 +76,7 @@
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>http://peelman.us/talentopoly/manifest.xml</string>
+	<string>https://github.com/downloads/peelman/Talentopoly-Safari-Extension/manifest.xml</string>
 	<key>Website</key>
 	<string>http://talentopoly.com</string>
 </dict>
